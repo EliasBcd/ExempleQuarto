@@ -122,7 +122,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Premier Exemple</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./ExempleSSD.html" rel="" target="">
+    <a class="nav-link active" href="./ExempleSSD.html" rel="" target="" aria-current="page">
  <span class="menu-text">Seine Saint-Denis</span></a>
   </li>  
 </ul>
@@ -142,7 +142,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Sur cette page</h2>
    
   <ul>
-  <li><a href="#quelle-puissance-de-charge" id="toc-quelle-puissance-de-charge" class="nav-link active" data-scroll-target="#quelle-puissance-de-charge">Quelle puissance de charge</a></li>
+  <li><a href="#nettoyage-des-données" id="toc-nettoyage-des-données" class="nav-link active" data-scroll-target="#nettoyage-des-données">Nettoyage des données</a></li>
+  <li><a href="#seine-saint-denis" id="toc-seine-saint-denis" class="nav-link" data-scroll-target="#seine-saint-denis">Seine Saint-Denis</a>
+  <ul class="collapse">
+  <li><a href="#quelle-puissance-de-charge" id="toc-quelle-puissance-de-charge" class="nav-link" data-scroll-target="#quelle-puissance-de-charge">Quelle puissance de charge</a></li>
+  </ul></li>
   <li><a href="#licence-pour-les-données" id="toc-licence-pour-les-données" class="nav-link" data-scroll-target="#licence-pour-les-données">Licence pour les données</a></li>
   </ul>
 </nav>
@@ -153,6 +157,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Exemple de traitement de données</h1>
+<p class="subtitle lead">Les bornes de recharge en Seine Saint-Denis</p>
 </div>
 
 
@@ -187,7 +192,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 <p>Chargement des données</p>
-<div class="cell" data-hash="Exemple_cache/html/setup_57c79fa04ddfa0d8f9655d8f05f454b1">
+<div class="cell" data-hash="ExempleSSD_cache/html/setup_1c67a42320add7698052818d10cb517a">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
@@ -212,51 +217,49 @@ The following object is masked from 'package:tidyr':
 </div>
 </div>
 <p>Chargement des données Les données ont été obtenues le mardi 21 novembre 2023 sur Etalab <a href="https://www.data.gouv.fr/en/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/" class="uri">https://www.data.gouv.fr/en/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/</a></p>
-<div class="cell" data-hash="Exemple_cache/html/load_data_222566e6b83f42dfa8b3c1622d844eef">
+<div class="cell" data-hash="ExempleSSD_cache/html/load_data_620ff36801fc58436280b85cdbf31369">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fichier <span class="ot">&lt;-</span> <span class="fu">getURL</span>(<span class="st">"https://static.data.gouv.fr/resources/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/20231122-065906/consolidation-etalab-schema-irve-statique-v-2.2.0-20231121.csv"</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">textConnection</span>(fichier))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<section id="nettoyage-des-données" class="level2">
+<h2 class="anchored" data-anchor-id="nettoyage-des-données">Nettoyage des données</h2>
+<p>Comme constaté avec l’autre fichier, nous allons modifier la puissance nominale donnée pour qu’elle soit cohérente.</p>
+<div class="cell" data-hash="ExempleSSD_cache/html/unnamed-chunk-1_1c260635a3fd4f6d8bc82894a3a35ce3">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">puissance_nominale =</span> <span class="fu">if_else</span>(puissance_nominale <span class="sc">&gt;=</span> <span class="dv">1000</span>, puissance_nominale <span class="sc">/</span> <span class="dv">1000</span>, puissance_nominale))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <p>Il y a 62648 chargeur recensé en France en date du 20 novembre 2023.</p>
+</section>
+<section id="seine-saint-denis" class="level1">
+<h1>Seine Saint-Denis</h1>
 <p>Nous allons maintenant chercher combien il en existe en Seine Saint-Denis.</p>
-<div class="cell" data-hash="Exemple_cache/html/ssd_b25dac8709f4cce52c3d8324a12a2553">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>ssd <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> </span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(code_insee_commune <span class="sc">&gt;=</span><span class="dv">93000</span> <span class="sc">&amp;</span> code_insee_commune <span class="sc">&lt;=</span> <span class="dv">93999</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ExempleSSD_cache/html/ssd_b90fa689996bff5ac1daff3efc3b0c51">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ssd <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(code_insee_commune <span class="sc">&gt;=</span><span class="dv">93000</span> <span class="sc">&amp;</span> code_insee_commune <span class="sc">&lt;=</span> <span class="dv">93999</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Il y a 692 chargeurs en Seine Saint-Denis.</p>
 <section id="quelle-puissance-de-charge" class="level2">
 <h2 class="anchored" data-anchor-id="quelle-puissance-de-charge">Quelle puissance de charge</h2>
-<p>On peut aussi chercher la puissance nominale des chargeurs. On dit qu’un chargeur est rapide si sa puissance nominale est supérieur à 100kW. Regardons un petit peu à quoi ressemble les données.</p>
-<div class="cell" data-hash="Exemple_cache/html/unnamed-chunk-1_21d187923dd57fb600e0760359b5d92b">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(<span class="at">x=</span>puissance_nominale)) <span class="sc">+</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">100</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ExempleSSD_cache/html/unnamed-chunk-2_2fd169249149e3d3c9c5256e565c8c14">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ssd, <span class="fu">aes</span>(<span class="at">x=</span>puissance_nominale)) <span class="sc">+</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">10</span>, <span class="at">boundary=</span> <span class="dv">0</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="Exemple_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
+<p><img src="ExempleSSD_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>En regardant l’histogramme des données, il y a clairement un problème dans la façon dont les données ont été entrée : certaines données sont entrées en Watt et d’autres en kiloWatt. Nous allons uniformiser ces entrées : toute entrée supérieure à 1000 sera considéré comme en W et divisée par 1000 pour avoir tous les chargeurs en kiloWatt. Aucun chargeur actuel n’a de puissance supérieur à 1000kW, raison pour laquelle nous supposons que toute puissance supérieur à 1000 est en Watt. À l’inverse, un chargeur avec une puissance de 1000W serait très faible.</p>
-<div class="cell" data-hash="Exemple_cache/html/unnamed-chunk-2_8ad55b31b029076c420c7355906f16e3">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">puissance_nominale =</span> <span class="fu">if_else</span>(puissance_nominale <span class="sc">&gt;=</span> <span class="dv">1000</span>, puissance_nominale <span class="sc">/</span> <span class="dv">1000</span>, puissance_nominale))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell" data-hash="Exemple_cache/html/unnamed-chunk-3_24c60c1d24108d5e67149c6f347e3745">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(<span class="at">x=</span>puissance_nominale)) <span class="sc">+</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">10</span>, <span class="at">boundary=</span> <span class="dv">0</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="Exemple_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<div class="cell" data-hash="Exemple_cache/html/unnamed-chunk-4_ad7201e81227bf3eb0023009c93739df">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Création d'une fonction qui obtient le mode d'une variable statistique.</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>get_mode <span class="ot">&lt;-</span> <span class="cf">function</span>(v) {</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>   uniqv <span class="ot">&lt;-</span> <span class="fu">unique</span>(v)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>   uniqv[<span class="fu">which.max</span>(<span class="fu">tabulate</span>(<span class="fu">match</span>(v, uniqv)))]</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ExempleSSD_cache/html/unnamed-chunk-3_ff9b2f8c2da654804e85d3977045e444">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Création d'une fonction qui obtient le mode d'une variable statistique.</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>get_mode <span class="ot">&lt;-</span> <span class="cf">function</span>(v) {</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>   uniqv <span class="ot">&lt;-</span> <span class="fu">unique</span>(v)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>   uniqv[<span class="fu">which.max</span>(<span class="fu">tabulate</span>(<span class="fu">match</span>(v, uniqv)))]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>On constate que la majorité des chargeurs a une puissance installée de 22kW.</p>
-<div class="cell" data-hash="Exemple_cache/html/charge_rapide_8513beae39ea5073548ab4bfe5c8af94">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ch_rapide <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(puissance_nominale <span class="sc">&gt;=</span> <span class="dv">100</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="ExempleSSD_cache/html/charge_rapide_7fb19927b88c2efddec12396864357ac">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ch_rapide <span class="ot">&lt;-</span> ssd <span class="sc">%&gt;%</span> <span class="fu">filter</span>(puissance_nominale <span class="sc">&gt;=</span> <span class="dv">100</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Seul 13% des chargeurs sont avec une charge rapide.</p>
+<p>Seul 15% des chargeurs sont avec une charge rapide.</p>
+</section>
 </section>
 <section id="licence-pour-les-données" class="level1">
 <h1>Licence pour les données</h1>

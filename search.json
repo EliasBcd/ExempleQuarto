@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "Exemple.html",
+    "href": "Exemple.html",
+    "title": "Exemple de traitement de données",
+    "section": "",
+    "text": "Chargement des données\nlibrary(tidyverse)\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.3     ✔ readr     2.1.4\n✔ forcats   1.0.0     ✔ stringr   1.5.0\n✔ ggplot2   3.4.4     ✔ tibble    3.2.1\n✔ lubridate 1.9.3     ✔ tidyr     1.3.0\n✔ purrr     1.0.2     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\nlibrary(RCurl)\n\n\nAttaching package: 'RCurl'\n\nThe following object is masked from 'package:tidyr':\n\n    complete\nChargement des données Les données ont été obtenues le mardi 21 novembre 2023 sur Etalab https://www.data.gouv.fr/en/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/\nfichier &lt;- getURL(\"https://static.data.gouv.fr/resources/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/20231122-065906/consolidation-etalab-schema-irve-statique-v-2.2.0-20231121.csv\")\ndata &lt;- read.csv(textConnection(fichier))\nIl y a 62648 chargeur recensé en France en date du 20 novembre 2023.\nNous allons maintenant chercher combien il en existe en Seine Saint-Denis.\nssd &lt;- data %&gt;% \n  filter(code_insee_commune &gt;=93000 & code_insee_commune &lt;= 93999)\nIl y a 692 chargeurs en Seine Saint-Denis."
+  },
+  {
+    "objectID": "Exemple.html#quelle-puissance-de-charge",
+    "href": "Exemple.html#quelle-puissance-de-charge",
+    "title": "Exemple de traitement de données",
+    "section": "Quelle puissance de charge",
+    "text": "Quelle puissance de charge\nOn peut aussi chercher la puissance nominale des chargeurs. On dit qu’un chargeur est rapide si sa puissance nominale est supérieur à 100kW. Regardons un petit peu à quoi ressemble les données.\n\nggplot(data, aes(x=puissance_nominale)) +\n  geom_histogram(bins = 100)\n\n\n\n\nEn regardant l’histogramme des données, il y a clairement un problème dans la façon dont les données ont été entrée : certaines données sont entrées en Watt et d’autres en kiloWatt. Nous allons uniformiser ces entrées : toute entrée supérieure à 1000 sera considéré comme en W et divisée par 1000 pour avoir tous les chargeurs en kiloWatt. Aucun chargeur actuel n’a de puissance supérieur à 1000kW, raison pour laquelle nous supposons que toute puissance supérieur à 1000 est en Watt. À l’inverse, un chargeur avec une puissance de 1000W serait très faible.\n\ndata &lt;- data %&gt;% \n  mutate(puissance_nominale = if_else(puissance_nominale &gt;= 1000, puissance_nominale / 1000, puissance_nominale))\n\n\nggplot(data, aes(x=puissance_nominale)) +\n  geom_histogram(binwidth = 10, boundary= 0)\n\n\n\n\n\n# Création d'une fonction qui obtient le mode d'une variable statistique.\nget_mode &lt;- function(v) {\n   uniqv &lt;- unique(v)\n   uniqv[which.max(tabulate(match(v, uniqv)))]\n}\n\nOn constate que la majorité des chargeurs a une puissance installée de 22kW.\n\nch_rapide &lt;- data %&gt;% filter(puissance_nominale &gt;= 100)\n\nSeul 13% des chargeurs sont avec une charge rapide."
+  },
+  {
+    "objectID": "ExempleSSD.html",
+    "href": "ExempleSSD.html",
+    "title": "Exemple de traitement de données",
+    "section": "",
+    "text": "Chargement des données\nlibrary(tidyverse)\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.3     ✔ readr     2.1.4\n✔ forcats   1.0.0     ✔ stringr   1.5.0\n✔ ggplot2   3.4.4     ✔ tibble    3.2.1\n✔ lubridate 1.9.3     ✔ tidyr     1.3.0\n✔ purrr     1.0.2     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\nlibrary(RCurl)\n\n\nAttaching package: 'RCurl'\n\nThe following object is masked from 'package:tidyr':\n\n    complete\nChargement des données Les données ont été obtenues le mardi 21 novembre 2023 sur Etalab https://www.data.gouv.fr/en/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/\nfichier &lt;- getURL(\"https://static.data.gouv.fr/resources/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/20231122-065906/consolidation-etalab-schema-irve-statique-v-2.2.0-20231121.csv\")\ndata &lt;- read.csv(textConnection(fichier))"
+  },
+  {
+    "objectID": "ExempleSSD.html#nettoyage-des-données",
+    "href": "ExempleSSD.html#nettoyage-des-données",
+    "title": "Exemple de traitement de données",
+    "section": "Nettoyage des données",
+    "text": "Nettoyage des données\nComme constaté avec l’autre fichier, nous allons modifier la puissance nominale donnée pour qu’elle soit cohérente.\n\ndata &lt;- data %&gt;% \n  mutate(puissance_nominale = if_else(puissance_nominale &gt;= 1000, puissance_nominale / 1000, puissance_nominale))\n\nIl y a 62648 chargeur recensé en France en date du 20 novembre 2023."
+  },
+  {
+    "objectID": "ExempleSSD.html#quelle-puissance-de-charge",
+    "href": "ExempleSSD.html#quelle-puissance-de-charge",
+    "title": "Exemple de traitement de données",
+    "section": "Quelle puissance de charge",
+    "text": "Quelle puissance de charge\n\nggplot(ssd, aes(x=puissance_nominale)) +\n  geom_histogram(binwidth = 10, boundary= 0)\n\n\n\n\n\n# Création d'une fonction qui obtient le mode d'une variable statistique.\nget_mode &lt;- function(v) {\n   uniqv &lt;- unique(v)\n   uniqv[which.max(tabulate(match(v, uniqv)))]\n}\n\nOn constate que la majorité des chargeurs a une puissance installée de 22kW.\n\nch_rapide &lt;- ssd %&gt;% filter(puissance_nominale &gt;= 100)\n\nSeul 15% des chargeurs sont avec une charge rapide."
+  }
+]
