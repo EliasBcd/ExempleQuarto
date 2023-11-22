@@ -1,0 +1,83 @@
+---
+title: "Exemple de traitement de données"
+author: 
+  - name: Elias Bouacida
+    email: elias.bouacida@univ-paris8.fr
+    affiliation: 
+      - name: Université Paris 8
+        city: Saint-Denis
+date: last-modified
+format: html
+lang: fr
+date-format: long
+execute: 
+  cache: true
+---
+
+Chargement des données
+
+```{r setup}
+library(tidyverse)
+library(RCurl)
+```
+
+Chargement des données
+Les données ont été obtenues le mardi 21 novembre 2023 sur Etalab <https://www.data.gouv.fr/en/datasets/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/>
+
+```{r load_data}
+fichier <- getURL("https://static.data.gouv.fr/resources/fichier-consolide-des-bornes-de-recharge-pour-vehicules-electriques/20231122-065906/consolidation-etalab-schema-irve-statique-v-2.2.0-20231121.csv")
+data <- read.csv(textConnection(fichier))
+```
+
+Il y a `r nrow(data)` chargeur recensé en France en date du 20 novembre 2023.
+
+Nous allons maintenant chercher combien il en existe en Seine Saint-Denis.
+```{r ssd}
+ssd <- data %>% 
+  filter(code_insee_commune >=93000 & code_insee_commune <= 93999)
+```
+
+Il y a `r nrow(ssd)` chargeurs en Seine Saint-Denis.
+
+## Quelle puissance de charge
+
+On peut aussi chercher la puissance nominale des chargeurs. 
+On dit qu'un chargeur est rapide si sa puissance nominale est supérieur à 100kW.
+Regardons un petit peu à quoi ressemble les données.
+
+```{r}
+ggplot(data, aes(x=puissance_nominale)) +
+  geom_histogram(bins = 100)
+```
+En regardant l'histogramme des données, il y a clairement un problème dans la façon dont les données ont été entrée : certaines données sont entrées en Watt et d'autres en kiloWatt.
+Nous allons uniformiser ces entrées : toute entrée supérieure à 1000 sera considéré comme en W et divisée par 1000 pour avoir tous les chargeurs en kiloWatt.
+Aucun chargeur actuel n'a de puissance supérieur à 1000kW, raison pour laquelle nous supposons que toute puissance supérieur à 1000 est en Watt. 
+À l'inverse, un chargeur avec une puissance de 1000W serait très faible.
+
+```{r}
+data <- data %>% 
+  mutate(puissance_nominale = if_else(puissance_nominale >= 1000, puissance_nominale / 1000, puissance_nominale))
+```
+
+```{r}
+ggplot(data, aes(x=puissance_nominale)) +
+  geom_histogram(binwidth = 10, boundary= 0)
+```
+
+```{r}
+# Création d'une fonction qui obtient le mode d'une variable statistique.
+get_mode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+```
+
+On constate que la majorité des chargeurs a une puissance installée de `r get_mode(data$puissance_nominale)`kW.
+
+```{r charge_rapide}
+ch_rapide <- data %>% filter(puissance_nominale >= 100)
+```
+
+Seul `r scales::label_percent()(nrow(ch_rapide)/nrow(data))` des chargeurs sont avec une charge rapide.
+
+
