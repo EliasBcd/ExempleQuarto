@@ -13,6 +13,8 @@ lang: fr
 date-format: long
 execute: 
   cache: true
+  echo: false
+  warning: false
 ---
 
 Chargement des données
