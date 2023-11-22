@@ -1,0 +1,28 @@
+project:
+  type: website
+
+website:
+  title: "Formation quarto"
+  description: "Exemple d'usage de Quarto"
+  navbar:
+    left:
+      - href: Exemple.qmd
+        text: "Premier Exemple"
+      - href: ExempleSSD.qmd
+        text: "Seine Saint-Denis"
+
+format:
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+    css: styles.css
+    toc: true
+
+editor: source
+
+execute: 
+  freeze: auto
+
+
+
